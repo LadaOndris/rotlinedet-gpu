@@ -64,11 +64,9 @@ float rotations[NUM_ROTATIONS][2] = {
 	{ 0.7071067811865476, 0.7071067811865475 }
 };
 
-void initialize_image(unsigned char img[IMG_HEIGHT][IMG_WIDTH]) {
-	for (int row = 0; row < IMG_HEIGHT; row++) {
-		for (int col = 0; col < IMG_WIDTH; col++) {
-			img[row][col] = 1;
-		}
+void initialize_image(unsigned char img[IMG_HEIGHT * IMG_WIDTH]) {
+	for (int i = 0; i < IMG_HEIGHT * IMG_WIDTH; i++) {
+		img[i] = 1;
 	}
 }
 
@@ -83,7 +81,7 @@ int reduce_sum(T *arr, int size) {
 
 int main() {
 	cout << "Initializing arrays..." << endl;
-	unsigned char img[IMG_HEIGHT][IMG_WIDTH];
+	unsigned char img[IMG_HEIGHT * IMG_WIDTH];
 	initialize_image(img);
 
 	unsigned int acc[NUM_ROTATIONS][ACC_SIZE] = { 0 };
