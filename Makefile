@@ -1,10 +1,14 @@
 CXX=nvc++
-CXXFLAGS=-fast -acc=gpu -Minfo=all
+CXXFLAGS=-fast -acc=gpu -Minfo=accel -gpu=managed
 
 .PHONY: clean
 
-rotlinedet: main.o
-	$(CXX) $(CXXFLAGS) -o $@ $^
+linedet: main.o linedet.o
+	nvc++ $(CXXFLAGS) $^ -o $@
+
+%.o: %.cpp %.hpp
+	nvc++ $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o core *.lst *.ptx *.pgprof *.cubin *.s *.x *.mod *.nvprof
+	rm -f linedet *.o core *.lst *.ptx *.pgprof *.cubin *.s *.x *.mod *.nvprof
+

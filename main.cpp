@@ -4,7 +4,7 @@
 #include <cstring>
 #include <omp.h>
 #include <openacc.h>
-#include "src/linedet.hpp"
+#include "linedet.hpp"
 #include <cassert>
 #include <iostream>
 #include <chrono>
