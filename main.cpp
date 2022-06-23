@@ -83,6 +83,9 @@ int reduce_sum(T *arr, int size) {
 
 int main() {
 	cout << "Initializing arrays..." << endl;
+
+	int *rotated_cols = new int[NUM_ROTATIONS * IMG_HEIGHT * IMG_WIDTH];
+
 	unsigned char img[IMG_HEIGHT][IMG_WIDTH];
 	initialize_image(img);
 
@@ -91,7 +94,7 @@ int main() {
 	cout << "Performing column sum..." << endl;
 
 	auto start = high_resolution_clock::now();
-	sum_columns(img, rotations, acc);
+	sum_columns(img, rotations, rotated_cols, acc);
 	auto stop = high_resolution_clock::now();
 	auto duration = duration_cast<milliseconds>(stop - start);
 
@@ -107,6 +110,8 @@ int main() {
 	}
 
 	cout << "Everything seems to be in check..." << endl;
+
+	delete[] rotated_cols;
 
 	return 0;
 }

@@ -24,8 +24,13 @@
 
 #define NUM_ROTATIONS 180
 
+void fill_rotated_cols(const unsigned char img[IMG_HEIGHT][IMG_WIDTH],
+		const float rotations[NUM_ROTATIONS][2], 
+		int rotated_cols[NUM_ROTATIONS][IMG_HEIGHT][IMG_WIDTH]); 
+
 void sum_columns(const unsigned char img[IMG_HEIGHT][IMG_WIDTH], 
 		const float rotations[NUM_ROTATIONS][2], 
+		const int rotated_cols[NUM_ROTATIONS * IMG_HEIGHT * IMG_WIDTH],
 		unsigned int acc[NUM_ROTATIONS][ACC_SIZE]);
 
 #endif
