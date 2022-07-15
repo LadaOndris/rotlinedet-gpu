@@ -1,7 +1,12 @@
 
-#include "linedet.hpp"
+#include "../include/linedet.hpp"
 #include <iostream>
 #include <openacc.h>
+
+void readImage(const std::string &imagePath, cv::Mat &image) {
+    cv::Mat img = cv::imread(imagePath);
+    image = img;
+}
 
 // 440 ms
 void sum_columns(const unsigned char img[IMG_HEIGHT][IMG_WIDTH], 

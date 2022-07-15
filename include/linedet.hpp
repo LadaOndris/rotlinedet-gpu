@@ -2,6 +2,11 @@
 #ifndef LINEDET_HPP
 #define LINEDET_HPP
 
+#include <string>
+#include <opencv2/core.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
+
 #ifdef HD 
 
 #define ACC_SIZE 4406
@@ -23,6 +28,8 @@
 #endif
 
 #define NUM_ROTATIONS 180
+
+void readImage(const std::string &imagePath, cv::Mat &image);
 
 void sum_columns(const unsigned char img[IMG_HEIGHT][IMG_WIDTH], 
 		const float rotations[NUM_ROTATIONS][2], 

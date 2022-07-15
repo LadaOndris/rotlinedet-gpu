@@ -4,7 +4,7 @@
 #include <cstring>
 #include <omp.h>
 #include <openacc.h>
-#include "linedet.hpp"
+#include "../include/linedet.hpp"
 #include <cassert>
 #include <iostream>
 #include <chrono>
@@ -81,7 +81,7 @@ int reduce_sum(T *arr, int size) {
 	return sum;
 }
 
-int main() {
+int main_test() {
 	cout << "Initializing arrays..." << endl;
 	unsigned char img[IMG_HEIGHT][IMG_WIDTH];
 	initialize_image(img);
