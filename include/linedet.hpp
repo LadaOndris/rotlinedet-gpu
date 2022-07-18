@@ -31,6 +31,10 @@
 
 void readImage(const std::string &imagePath, cv::Mat &image);
 
+void convert_bgr_to_gray(const cv::Mat &inImage, cv::Mat &outImage);
+
+void remove_extreme_intensities(const cv::Mat &inImage, cv::Mat &outImage);
+
 void sum_columns(const unsigned char img[IMG_HEIGHT][IMG_WIDTH], 
 		const float rotations[NUM_ROTATIONS][2], 
 		unsigned int acc[NUM_ROTATIONS][ACC_SIZE]);
