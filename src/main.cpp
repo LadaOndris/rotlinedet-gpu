@@ -25,7 +25,7 @@ int parseArgs(int argc, char **argv, RunParams &params) {
 
         if (args[i] == "--image") {
             params.imagePath = args[i + 1];
-        }else {
+        } else {
             cout << "Unknown option: " << args[i] << endl;
             return 2;
         }
@@ -37,9 +37,12 @@ void displayImage(const cv::Mat &image) {
     cv::namedWindow("main", cv::WINDOW_NORMAL);
     cv::imshow("main", image);
 
-    auto key = cv::waitKey();
+
     int ESCAPE_KEY = 27;
-    while ((key & 0xEFFFFF) != ESCAPE_KEY);
+    int key;
+    do {
+        key = cv::waitKey(0);
+    } while ((key & 0xEFFFFF) != ESCAPE_KEY);
 }
 
 int main(int argc, char **argv) {
@@ -49,9 +52,23 @@ int main(int argc, char **argv) {
         return code;
     }
 
+    if (params.imagePath.empty()) {
+        cout << "No input file. Use option --image." << endl;
+        return 2;
+    }
+
     cv::Mat img;
     readImage(params.imagePath, img);
-    displayImage(img);
+
+    cv::Mat gray;
+    convert_bgr_to_gray(img, gray);
+    displayImage(gray);
+
+    cv::Mat cleaned;
+    remove_extreme_intensities(gray, cleaned);
+    displayImage(cleaned);
+
+    sum
 
     return 0;
 }
