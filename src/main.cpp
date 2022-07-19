@@ -61,11 +61,11 @@ int main(int argc, char **argv) {
     readImage(params.imagePath, img);
 
     cv::Mat gray;
-    convert_bgr_to_gray(img, gray);
+    convertBgrToGray(img, gray);
     displayImage(gray);
 
     cv::Mat cleaned;
-    remove_extreme_intensities(gray, cleaned);
+    removeExtremeIntensities(gray, cleaned);
     displayImage(cleaned);
 
     return 0;

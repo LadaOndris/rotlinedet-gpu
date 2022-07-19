@@ -8,11 +8,11 @@ void readImage(const std::string &imagePath, cv::Mat &image) {
     image = img;
 }
 
-void convert_bgr_to_gray(const cv::Mat &inImage, cv::Mat &outImage) {
+void convertBgrToGray(const cv::Mat &inImage, cv::Mat &outImage) {
     cv::cvtColor(inImage, outImage, cv::COLOR_BGR2GRAY);
 }
 
-void remove_extreme_intensities(const cv::Mat &inImage, cv::Mat &outImage) {
+void removeExtremeIntensities(const cv::Mat &inImage, cv::Mat &outImage) {
     outImage = inImage;
 //
 //    cv::Mat reshaped = inImage.reshape(1, 1);
@@ -24,8 +24,8 @@ void remove_extreme_intensities(const cv::Mat &inImage, cv::Mat &outImage) {
 //    std::cout << "\nThe median is " << reshaped.at<cv::uint8_t>(reshaped.total() / 2) << '\n';
 }
 
-void convolve_average(unsigned int acc[NUM_ROTATIONS][ACC_SIZE], int filterSize,
-                      unsigned int result[NUM_ROTATIONS][ACC_SIZE]) {
+void convolveAverage(unsigned int acc[NUM_ROTATIONS][ACC_SIZE], int filterSize,
+                     unsigned int result[NUM_ROTATIONS][ACC_SIZE]) {
     // Convolve each image rotation
     for (int rot = 0; rot < NUM_ROTATIONS; rot++) {
         // Do the 1D convolution itself
@@ -43,9 +43,9 @@ void convolve_average(unsigned int acc[NUM_ROTATIONS][ACC_SIZE], int filterSize,
 }
 
 // 440 ms
-void sum_columns(const unsigned char img[IMG_HEIGHT][IMG_WIDTH],
-                 const float rotations[NUM_ROTATIONS][2],
-                 unsigned int acc[NUM_ROTATIONS][ACC_SIZE]) {
+void sumColumns(const unsigned char img[IMG_HEIGHT][IMG_WIDTH],
+                const float rotations[NUM_ROTATIONS][2],
+                unsigned int acc[NUM_ROTATIONS][ACC_SIZE]) {
 
 #pragma acc data copyin(img[:IMG_HEIGHT][:IMG_WIDTH])
     for (int rot = 0; rot < NUM_ROTATIONS; rot++) {

@@ -31,14 +31,14 @@
 
 void readImage(const std::string &imagePath, cv::Mat &image);
 
-void convert_bgr_to_gray(const cv::Mat &inImage, cv::Mat &outImage);
+void convertBgrToGray(const cv::Mat &inImage, cv::Mat &outImage);
 
-void remove_extreme_intensities(const cv::Mat &inImage, cv::Mat &outImage);
+void removeExtremeIntensities(const cv::Mat &inImage, cv::Mat &outImage);
 
-void sum_columns(const unsigned char img[IMG_HEIGHT][IMG_WIDTH], 
-		const float rotations[NUM_ROTATIONS][2], 
-		unsigned int acc[NUM_ROTATIONS][ACC_SIZE]);
+void sumColumns(const unsigned char img[IMG_HEIGHT][IMG_WIDTH],
+                const float rotations[NUM_ROTATIONS][2],
+                unsigned int acc[NUM_ROTATIONS][ACC_SIZE]);
 
-void convolve_average(unsigned int acc[NUM_ROTATIONS][ACC_SIZE], int filterSize,
-                      unsigned int result[NUM_ROTATIONS][ACC_SIZE]);
+void convolveAverage(unsigned int acc[NUM_ROTATIONS][ACC_SIZE], int filterSize,
+                     unsigned int result[NUM_ROTATIONS][ACC_SIZE]);
 #endif

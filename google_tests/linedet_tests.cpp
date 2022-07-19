@@ -12,7 +12,7 @@ TEST (ConvolveAverageTests, ArbitraryNumbers) {
     array[0][3] = 3;
     array[0][4] = 6;
 
-    convolve_average(array, filterSize, result);
+    convolveAverage(array, filterSize, result);
 
     unsigned expected_results[][2] = {{0, 0},
                                           {1, 1},

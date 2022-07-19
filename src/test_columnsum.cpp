@@ -91,7 +91,7 @@ int main_test() {
 	cout << "Performing column sum..." << endl;
 
 	auto start = high_resolution_clock::now();
-	sum_columns(img, rotations, acc);
+    sumColumns(img, rotations, acc);
 	auto stop = high_resolution_clock::now();
 	auto duration = duration_cast<milliseconds>(stop - start);
 
