@@ -7,7 +7,7 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
-#ifdef HD 
+#ifdef HD
 
 #define ACC_SIZE 4406
 #define HALF_ACC_SIZE 2203
@@ -41,4 +41,18 @@ void sumColumns(const unsigned char img[IMG_HEIGHT][IMG_WIDTH],
 
 void convolveAverage(unsigned int acc[NUM_ROTATIONS][ACC_SIZE], int filterSize,
                      unsigned int result[NUM_ROTATIONS][ACC_SIZE]);
+
+void extractPeaks(unsigned int acc[NUM_ROTATIONS][ACC_SIZE],
+                  unsigned int average[NUM_ROTATIONS][ACC_SIZE],
+                  unsigned int peaks[NUM_ROTATIONS][ACC_SIZE]);
+
+void extractSlopes(unsigned int array[NUM_ROTATIONS][ACC_SIZE],
+                   int sideDistance,
+                   unsigned int slopes[NUM_ROTATIONS][ACC_SIZE]);
+
+void selectPeaksUsingSlopes(unsigned int peaks[NUM_ROTATIONS][ACC_SIZE],
+                            unsigned int slopes[NUM_ROTATIONS][ACC_SIZE],
+                            unsigned slopeThreshold,
+                            unsigned int selectedPeaks[NUM_ROTATIONS][2]);
+
 #endif

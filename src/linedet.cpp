@@ -42,6 +42,71 @@ void convolveAverage(unsigned int acc[NUM_ROTATIONS][ACC_SIZE], int filterSize,
     }
 }
 
+void extractPeaks(unsigned int acc[NUM_ROTATIONS][ACC_SIZE],
+                  unsigned int average[NUM_ROTATIONS][ACC_SIZE],
+                  unsigned int peaks[NUM_ROTATIONS][ACC_SIZE]) {
+    // diff = acc - average
+    // peaks = max(0, diff)
+    for (int rot = 0; rot < NUM_ROTATIONS; rot++) {
+        for (int col = 0; col < ACC_SIZE; col++) {
+            unsigned val = std::max(acc[rot][col], average[rot][col]);
+            peaks[rot][col] = val - average[rot][col];
+        }
+    }
+}
+
+/**
+ *
+ * @param array
+ *  The array on which the slopes are computed.
+ * @param sideDistance
+ *  Determines the distance between the values for which the
+ *  slope is computed. It measures the distance from the center position to
+ *  each side. E.g., windowSize = 2 indicates that
+ *  the slope for index 2 will be computed between the 0th and the 4nd value.
+ *  For index 5 it will be the 3rd and the 7th.
+ */
+void extractSlopes(unsigned int array[NUM_ROTATIONS][ACC_SIZE],
+                   int sideDistance,
+                   unsigned int slopes[NUM_ROTATIONS][ACC_SIZE]) {
+    for (int rot = 0; rot < NUM_ROTATIONS; rot++) {
+        for (int col = 0; col < sideDistance; col++) {
+            slopes[rot][col] = std::numeric_limits<unsigned>::max();
+        }
+        for (int col = sideDistance; col < ACC_SIZE - sideDistance; col++) {
+            unsigned left = array[rot][col - sideDistance];
+            unsigned right = array[rot][col + sideDistance];
+            unsigned bigger = std::max(left, right);
+            unsigned smaller = std::min(left, right);
+            slopes[rot][col] = bigger - smaller;
+        }
+        for (int col = ACC_SIZE - sideDistance; col < ACC_SIZE; col++) {
+            slopes[rot][col] = std::numeric_limits<unsigned>::max();
+        }
+    }
+}
+
+void selectPeaksUsingSlopes(unsigned int peaks[NUM_ROTATIONS][ACC_SIZE],
+                            unsigned int slopes[NUM_ROTATIONS][ACC_SIZE],
+                            unsigned slopeThreshold,
+                            unsigned int selectedPeaks[NUM_ROTATIONS][2]) {
+    // Selects peak with the highest peak value above certain slope threshold
+    // for each rotation
+    for (int rot = 0; rot < NUM_ROTATIONS; rot++) {
+        selectedPeaks[rot][0] = 0; // col
+        selectedPeaks[rot][1] = 0; // peakValue
+
+        for (int col = 0; col < ACC_SIZE; col++) {
+            if (slopes[rot][col] < slopeThreshold) {
+                if (selectedPeaks[rot][1] < peaks[rot][col]) {
+                    selectedPeaks[rot][0] = col;
+                    selectedPeaks[rot][1] = peaks[rot][col];
+                }
+            }
+        }
+    }
+}
+
 // 440 ms
 void sumColumns(const unsigned char img[IMG_HEIGHT][IMG_WIDTH],
                 const float rotations[NUM_ROTATIONS][2],
