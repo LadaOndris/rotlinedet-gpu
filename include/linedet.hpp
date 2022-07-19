@@ -39,4 +39,6 @@ void sum_columns(const unsigned char img[IMG_HEIGHT][IMG_WIDTH],
 		const float rotations[NUM_ROTATIONS][2], 
 		unsigned int acc[NUM_ROTATIONS][ACC_SIZE]);
 
+void convolve_average(unsigned int acc[NUM_ROTATIONS][ACC_SIZE], int filterSize,
+                      unsigned int result[NUM_ROTATIONS][ACC_SIZE]);
 #endif

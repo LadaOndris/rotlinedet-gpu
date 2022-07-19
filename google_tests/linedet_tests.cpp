@@ -1,9 +1,31 @@
 
 #include "gtest/gtest.h"
+#include "linedet.hpp"
 
-TEST (SquareTest /*test suite name*/, PosZeroNeg /*test name*/) {
-    //EXPECT_EQ (9.0, (3.0*2.0)); // fail, test continues
-    ASSERT_EQ (0.0, (0.0));     // success
-    //ASSERT_EQ (9, (3)*(-3.0));  // fail, test interrupts
-    ASSERT_EQ (-9, (-3)*(-3.0));// not executed due to the previous assert
+TEST (ConvolveAverageTests, ArbitraryNumbers) {
+    unsigned int array[NUM_ROTATIONS][ACC_SIZE] = {0};
+    unsigned int result[NUM_ROTATIONS][ACC_SIZE] = {0};
+    int filterSize = 3;
+    // Set the array to: [[0,0,3,3,6,0,0,...0], [0...0], ...]
+    // Which should result in: [[0,1,2,4,3,2,0,...0], [0...0], ...]
+    array[0][2] = 3;
+    array[0][3] = 3;
+    array[0][4] = 6;
+
+    convolve_average(array, filterSize, result);
+
+    unsigned expected_results[][2] = {{0, 0},
+                                          {1, 1},
+                                          {2, 2},
+                                          {3, 4},
+                                          {4, 3},
+                                          {5, 2},
+                                          {6, 0}};
+
+    for (auto & expected_result : expected_results) {
+        unsigned index = expected_result[0];
+        unsigned value = expected_result[1];
+        ASSERT_EQ(result[0][index], value);
+    }
+
 }

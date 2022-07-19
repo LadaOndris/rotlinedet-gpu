@@ -29,9 +29,11 @@ void convolve_average(unsigned int acc[NUM_ROTATIONS][ACC_SIZE], int filterSize,
     // Convolve each image rotation
     for (int rot = 0; rot < NUM_ROTATIONS; rot++) {
         // Do the 1D convolution itself
-        for (int i = 0; i < ACC_SIZE; i++) {
+        int halfFilterSize = filterSize / 2;
+        for (int i = halfFilterSize; i < ACC_SIZE - halfFilterSize; i++) {
             // Sum values
-            for (int h = i; h < i + filterSize; h++) {
+            int firstConvIndex = i - halfFilterSize;
+            for (int h = firstConvIndex; h < firstConvIndex + filterSize; h++) {
                 result[rot][i] += acc[rot][h];
             }
             // Compute average by dividing by the number of values

@@ -68,7 +68,5 @@ int main(int argc, char **argv) {
     remove_extreme_intensities(gray, cleaned);
     displayImage(cleaned);
 
-    sum
-
     return 0;
 }
