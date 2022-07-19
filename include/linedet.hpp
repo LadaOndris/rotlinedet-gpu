@@ -29,6 +29,8 @@
 
 #define NUM_ROTATIONS 180
 
+extern float rotations[NUM_ROTATIONS][2];
+
 void readImage(const std::string &imagePath, cv::Mat &image);
 
 void convertBgrToGray(const cv::Mat &inImage, cv::Mat &outImage);
@@ -37,22 +39,22 @@ void removeExtremeIntensities(const cv::Mat &inImage, cv::Mat &outImage);
 
 void sumColumns(const unsigned char img[IMG_HEIGHT][IMG_WIDTH],
                 const float rotations[NUM_ROTATIONS][2],
-                unsigned int acc[NUM_ROTATIONS][ACC_SIZE]);
+                unsigned int **acc);
 
-void convolveAverage(unsigned int acc[NUM_ROTATIONS][ACC_SIZE], int filterSize,
-                     unsigned int result[NUM_ROTATIONS][ACC_SIZE]);
+void convolveAverage(unsigned int **acc, int filterSize,
+                     unsigned int **result);
 
-void extractPeaks(unsigned int acc[NUM_ROTATIONS][ACC_SIZE],
-                  unsigned int average[NUM_ROTATIONS][ACC_SIZE],
-                  unsigned int peaks[NUM_ROTATIONS][ACC_SIZE]);
+void extractPeaks(unsigned int **acc,
+                  unsigned int **average,
+                  unsigned int **peaks);
 
-void extractSlopes(unsigned int array[NUM_ROTATIONS][ACC_SIZE],
+void extractSlopes(unsigned int **array,
                    int sideDistance,
-                   unsigned int slopes[NUM_ROTATIONS][ACC_SIZE]);
+                   unsigned int **slopes);
 
-void selectPeaksUsingSlopes(unsigned int peaks[NUM_ROTATIONS][ACC_SIZE],
-                            unsigned int slopes[NUM_ROTATIONS][ACC_SIZE],
+void selectPeaksUsingSlopes(unsigned int **peaks,
+                            unsigned int **slopes,
                             unsigned slopeThreshold,
-                            unsigned int selectedPeaks[NUM_ROTATIONS][2]);
+                            unsigned int **selectedPeaks);
 
 #endif
