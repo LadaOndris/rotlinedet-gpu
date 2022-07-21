@@ -41,20 +41,20 @@ void sumColumns(const unsigned char img[IMG_HEIGHT][IMG_WIDTH],
                 const float rotations[NUM_ROTATIONS][2],
                 unsigned int **acc);
 
-void convolveAverage(unsigned int **acc, int filterSize,
-                     unsigned int **result);
+void convolveAverage(float **acc, int filterSize,
+                     float **result);
 
-void extractPeaks(unsigned int **acc,
-                  unsigned int **average,
-                  unsigned int **peaks);
+void extractPeaks(float **acc,
+                  float **average,
+                  float**peaks);
 
-void extractSlopes(unsigned int **array,
+void extractSlopes(float **array,
                    int sideDistance,
-                   unsigned int **slopes);
+                   float **slopes);
 
-void selectPeaksUsingSlopes(unsigned int **peaks,
-                            unsigned int **slopes,
-                            unsigned slopeThreshold,
-                            unsigned int **selectedPeaks);
+void selectPeaksUsingSlopes(float **peaks,
+                            float **slopes,
+                            float slopeThreshold,
+                            float **selectedPeaks);
 
 #endif

@@ -35,7 +35,7 @@ int main_test() {
 	unsigned char img[IMG_HEIGHT][IMG_WIDTH];
 	initialize_image(img);
 
-	auto acc = allocate2DArray(NUM_ROTATIONS, ACC_SIZE);
+	auto acc = allocate2DArray<unsigned>(NUM_ROTATIONS, ACC_SIZE);
 
 	cout << "Performing column sum..." << endl;
 

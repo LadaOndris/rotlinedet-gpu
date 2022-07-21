@@ -29,7 +29,9 @@ int parseArgs(int argc, char **argv, RunParams &params) {
         } else if (args[i] == "--filterSize") {
             params.averagingFilterSize = stoi(args[i + 1]);
         } else if (args[i] == "--slopeThreshold") {
-            params.slopeThreshold = stoi(args[i + 1]);
+            params.slopeThreshold = stof(args[i + 1]);
+        } else if (args[i] == "--minPixelsThreshold") {
+            params.minPixelsThreshold = stoi(args[i + 1]);
         } else {
             cout << "Unknown option: " << args[i] << endl;
             return 2;
@@ -60,6 +62,48 @@ void convertMatTo2DArray(const cv::Mat &mat,
     }
 }
 
+float **loadColumnPixelCountsFromFile(const string &filePath) {
+    u_int16_t num_rotations, acc_width;
+    std::ifstream fin("src/scripts/columnPixelCounts.dat", std::ios::binary);
+    fin.read(reinterpret_cast<char *>(&num_rotations), sizeof(u_int16_t));
+    fin.read(reinterpret_cast<char *>(&acc_width), sizeof(u_int16_t));
+
+    float **values = allocate2DArray<float>(num_rotations, acc_width);
+    // The values are saved as 16-bit values, which is enough
+    // to serialize values that are up to a few thousand at the most.
+    u_int16_t value;
+
+    for (int i = 0; i < num_rotations; i++) {
+        for (int j = 0; j < acc_width; j++) {
+            fin.read(reinterpret_cast<char *>(&value), sizeof(u_int16_t));
+            values[i][j] = static_cast<float>(value);
+        }
+    }
+    return values;
+}
+
+void normalizeAccByNumPixels(unsigned int **acc, float **pixelCounts,
+                             float **normalizedAcc) {
+    for (int rot = 0; rot < NUM_ROTATIONS; rot++) {
+        for (int col = 0; col < ACC_SIZE; col++) {
+            float pixel_count = pixelCounts[rot][col];
+            normalizedAcc[rot][col] = acc[rot][col] / pixel_count;
+        }
+    }
+}
+
+void ignoreColumnsWithTooFewPixels(float **slopes, float **pixelCounts,
+                                   int pixelCountThreshold) {
+    for (int rot = 0; rot < NUM_ROTATIONS; rot++) {
+        for (int col = 0; col < ACC_SIZE; col++) {
+            if (pixelCounts[rot][col] < pixelCountThreshold) {
+                slopes[rot][col] = std::numeric_limits<float>::max();
+            }
+        }
+    }
+}
+
+
 int main(int argc, char **argv) {
     RunParams params;
     int code = parseArgs(argc, argv, params);
@@ -71,14 +115,16 @@ int main(int argc, char **argv) {
         cout << "No input file. Use option --image." << endl;
         return 2;
     }
-    if (params.averagingFilterSize < 1) {
+    if (params.averagingFilterSize <= 0) {
         cout << "Filter size is too small." << endl;
         return 2;
     }
-    if (params.slopeThreshold < 1) {
+    if (params.slopeThreshold <= 0) {
         cout << "Slope threshold cannot be zero or negative." << endl;
         return 2;
     }
+
+    float **columnPixelCounts = loadColumnPixelCountsFromFile("src/scripts/columnPixelCounts.dat");
 
     cv::Mat img;
     readImage(params.imagePath, img);
@@ -94,29 +140,41 @@ int main(int argc, char **argv) {
     unsigned char imgData[IMG_HEIGHT][IMG_WIDTH];
     convertMatTo2DArray(cleaned, imgData);
     //unsigned acc[NUM_ROTATIONS][ACC_SIZE];
-    auto acc = allocate2DArray(NUM_ROTATIONS, ACC_SIZE);
+    auto acc = allocate2DArray<unsigned>(NUM_ROTATIONS, ACC_SIZE);
+    fill2DArray<unsigned>(acc, NUM_ROTATIONS, ACC_SIZE, 0);
     sumColumns(imgData, rotations, acc);
 
-    // Divide by the number of nonzero pixels - can be precomputed into coefficients and multiplied by it.
+    // Divide by the number of nonzero pixels
+    auto normalizedAcc = allocate2DArray<float>(NUM_ROTATIONS, ACC_SIZE);
+    normalizeAccByNumPixels(acc, columnPixelCounts, normalizedAcc);
 
-    auto average = allocate2DArray(NUM_ROTATIONS, ACC_SIZE);
-    convolveAverage(acc, params.averagingFilterSize, average);
+    auto average = allocate2DArray<float>(NUM_ROTATIONS, ACC_SIZE);
+    fill2DArray<float>(average, NUM_ROTATIONS, ACC_SIZE, 0);
+    convolveAverage(normalizedAcc, params.averagingFilterSize, average);
 
-    auto peaks = allocate2DArray(NUM_ROTATIONS, ACC_SIZE);
-    extractPeaks(acc, average, peaks);
+    auto peaks = allocate2DArray<float>(NUM_ROTATIONS, ACC_SIZE);
+    extractPeaks(normalizedAcc, average, peaks);
 
     int sideDistance = params.averagingFilterSize / 2;
-    auto slopes = allocate2DArray(NUM_ROTATIONS, ACC_SIZE);
+    auto slopes = allocate2DArray<float>(NUM_ROTATIONS, ACC_SIZE);
     extractSlopes(average, sideDistance, slopes);
 
-    auto selectedPeaks = allocate2DArray(NUM_ROTATIONS, 2);
+    ignoreColumnsWithTooFewPixels(slopes, columnPixelCounts, params.minPixelsThreshold);
+//    for (int i = 0; i < ACC_SIZE; i++) {
+//        cout << i << ": " << columnPixelCounts[0][i] << ", " << normalizedAcc[0][i] << endl;
+//    }
+
+    auto selectedPeaks = allocate2DArray<float>(NUM_ROTATIONS, 2);
     selectPeaksUsingSlopes(peaks, slopes, params.slopeThreshold, selectedPeaks);
 
     for (int i = 0; i < NUM_ROTATIONS; i++) {
-        cout << i << ": " << selectedPeaks[i][1] << " at " << selectedPeaks[i][0] << endl;
+        cout << i << " (" << acos(rotations[i][1]) / M_PI * 180 << "): " << selectedPeaks[i][1] << " at " <<
+             selectedPeaks[i][0] << endl;
     }
 
+    delete2DArray(columnPixelCounts, NUM_ROTATIONS);
     delete2DArray(acc, NUM_ROTATIONS);
+    delete2DArray(normalizedAcc, NUM_ROTATIONS);
     delete2DArray(average, NUM_ROTATIONS);
     delete2DArray(peaks, NUM_ROTATIONS);
     delete2DArray(slopes, NUM_ROTATIONS);

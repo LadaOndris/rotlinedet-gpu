@@ -8,6 +8,7 @@ class RunParams {
 public:
     std::string imagePath;
     int averagingFilterSize;
-    int slopeThreshold;
+    float slopeThreshold;
+    int minPixelsThreshold;
 };
 #endif //ROTLINEDET_GPU_RUNPARAMS_H
