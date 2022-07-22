@@ -68,6 +68,12 @@ def print_nonzero_pixels(width, height) -> None:
     angles_rads = get_angles_rads(NUM_ROTATIONS, ANGLE_RADS_FROM, ANGLE_RADS_TO)
     angles_degs = angles_rads / np.pi * 180
     acc_size = get_diagonal_size(height, width)
+    half_acc_size = int(acc_size // 2)
+
+    img = np.ones([height, width], dtype=np.uint8)
+    padded_img = pad_image(img)
+
+    sins, coss = generate(NUM_ROTATIONS, ANGLE_RADS_FROM, ANGLE_RADS_TO)
 
     with open("src/scripts/columnPixelCounts.dat", 'wb') as file:
         # Write height and width of the image (determining the number of values)
@@ -78,14 +84,30 @@ def print_nonzero_pixels(width, height) -> None:
 
         # Write all the values
         for i in range(NUM_ROTATIONS):
-            img = np.ones([height, width], dtype=np.uint8)
-            padded_img = pad_image(img)
-            rotated_img = rotate_image(padded_img, angles_degs[i])
+            # rotated_img = rotate_image(padded_img, angles_degs[i])
+            # col_sum = np.sum(rotated_img, axis=0).astype(np.uint16)
+            # Each value in the accumulator can be represented in 16 bits.
 
-            # Each value can be represented in 16 bits.
-            col_sum = np.sum(rotated_img, axis=0).astype(np.uint16)
+            # This is the same algorithm for rotation as in the C++ code
+            # to ensure the pixel counts are correct (OpenCV image rotation didn't produce
+            # the same result).
+            # The algorithm is vectorized in Numpy.
+            rotation_col = coss[i]
+            rotation_row = sins[i]
+
+            xx, yy = np.meshgrid(np.arange(HEIGHT), np.arange(WIDTH), indexing='ij')
+            coords = np.stack([xx, yy], axis=-1)
+            coords = np.reshape(coords, [-1, 2])
+
+            col_shifted = coords[:, 1] - HALF_IMG_WIDTH
+            row_shifted = coords[:, 0] - HALF_IMG_HEIGHT
+            new_col_shifted = col_shifted * rotation_col + row_shifted * rotation_row
+            new_col = (new_col_shifted + half_acc_size).astype(int)
+
+            indices, counts = np.unique(new_col, return_counts=True)
             # Avoiding 0 values (comes in handy when normalizing by the number of pixels)
-            col_sum[col_sum == 0] = 1
+            col_sum = np.ones([acc_size], dtype=np.uint16)
+            col_sum[indices] = counts
             assert (col_sum.size == acc_size)
             col_sum_bytes = col_sum.tobytes()
             file.write(col_sum_bytes)
@@ -97,12 +119,20 @@ def resize_image(img_path: str, save_path: str, width: int, height: int) -> None
     cv2.imwrite(save_path, resized)
 
 
-NUM_ROTATIONS = 180
-ANGLE_RADS_FROM = -0 / 180 * np.pi
+def generate_image_with_ones_only(width: int, height: int, save_path: str):
+    img = np.ones([height, width, 3], dtype=np.uint8)
+    cv2.imwrite(save_path, img)
+
+
+NUM_ROTATIONS = 317
+ANGLE_RADS_FROM = -79 / 180 * np.pi
 ANGLE_RADS_TO = 79 / 180 * np.pi
 WIDTH = 1920
 HEIGHT = 1080
+HALF_IMG_WIDTH = int(WIDTH // 2)
+HALF_IMG_HEIGHT = int(HEIGHT // 2)
 
+# generate_image_with_ones_only(WIDTH, HEIGHT, 'data/olympus/ones.jpg')
 # resize_image('data/olympus/_6210070.JPG', 'data/olympus/_6210070_fullhd.JPG', WIDTH, HEIGHT);
 generate_and_print_rotations()
 print_nonzero_pixels(width=WIDTH, height=HEIGHT)
