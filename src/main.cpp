@@ -10,6 +10,7 @@
 #include <chrono>
 #include "RunParams.hpp"
 #include "arrays.hpp"
+#include "coordinates.hpp"
 
 using namespace std;
 using namespace std::chrono;
@@ -103,6 +104,10 @@ void ignoreColumnsWithTooFewPixels(float **slopes, float **pixelCounts,
     }
 }
 
+void printImageEndpoints(image_endpoints_t endpoints) {
+    cout << endpoints.x1 << "," << endpoints.y1 << "," << endpoints.x2 << "," << endpoints.y2 << endl;
+}
+
 
 int main(int argc, char **argv) {
     RunParams params;
@@ -181,6 +186,12 @@ int main(int argc, char **argv) {
              selectedPeaks[i][0] << endl;
     }
     cout << "Col: " << bestPeak[0] << ", metric: " << bestPeak[1] << ", rotation: " << rotation << "°" << endl;
+
+    image_dimensions_t imageShape = { .width = IMG_WIDTH, .height = IMG_HEIGHT };
+    image_dimensions_t paddedImageShape = { .width = ACC_SIZE, .height = ACC_SIZE };
+    slope_intercept_line_t line = lineFromAngleAndCol(rotation, bestPeak[0], imageShape, paddedImageShape);
+    image_endpoints_t imageEndpoints = lineEndPointsOnImage(line, imageShape);
+    printImageEndpoints(imageEndpoints);
 
     delete2DArray(columnPixelCounts, NUM_ROTATIONS);
     delete2DArray(acc, NUM_ROTATIONS);

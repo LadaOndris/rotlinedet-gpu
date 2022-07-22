@@ -10,5 +10,5 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 
 # 'Google_Tests_run' is the target name
 # 'test1.cpp tests2.cpp' are source files with tests
-add_executable(Google_Tests_run linedet_tests.cpp)
+add_executable(Google_Tests_run linedet_tests.cpp coordinates_tests.cpp)
 target_link_libraries(Google_Tests_run gtest gtest_main ${OpenCV_LIBS} rotlinedet_lib)
