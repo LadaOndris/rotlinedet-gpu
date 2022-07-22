@@ -10,5 +10,6 @@ public:
     int averagingFilterSize;
     float slopeThreshold;
     int minPixelsThreshold;
+    bool verbose = false;
 };
 #endif //ROTLINEDET_GPU_RUNPARAMS_H

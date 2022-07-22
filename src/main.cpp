@@ -33,6 +33,8 @@ int parseArgs(int argc, char **argv, RunParams &params) {
             params.slopeThreshold = stof(args[i + 1]);
         } else if (args[i] == "--minPixelsThreshold") {
             params.minPixelsThreshold = stoi(args[i + 1]);
+        } else if (args[i] == "--verbose") {
+            params.verbose = true;
         } else {
             cout << "Unknown option: " << args[i] << endl;
             return 2;
@@ -182,10 +184,14 @@ int main(int argc, char **argv) {
             bestPeak = selectedPeaks[i];
             rotation = angleDegs;
         }
-        cout << i << " (" << angleDegs << "): " << selectedPeaks[i][1] << " at " <<
-             selectedPeaks[i][0] << endl;
+        if (params.verbose) {
+            cout << i << " (" << angleDegs << "): " << selectedPeaks[i][1] << " at " <<
+            selectedPeaks[i][0] << endl;
+        }
     }
-    cout << "Col: " << bestPeak[0] << ", metric: " << bestPeak[1] << ", rotation: " << rotation << "°" << endl;
+    if (params.verbose) {
+        cout << "Col: " << bestPeak[0] << ", metric: " << bestPeak[1] << ", rotation: " << rotation << "°" << endl;
+    }
 
     image_dimensions_t imageShape = { .width = IMG_WIDTH, .height = IMG_HEIGHT };
     image_dimensions_t paddedImageShape = { .width = ACC_SIZE, .height = ACC_SIZE };
