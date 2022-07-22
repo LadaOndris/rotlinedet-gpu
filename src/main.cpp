@@ -167,10 +167,20 @@ int main(int argc, char **argv) {
     auto selectedPeaks = allocate2DArray<float>(NUM_ROTATIONS, 2);
     selectPeaksUsingSlopes(peaks, slopes, params.slopeThreshold, selectedPeaks);
 
+    float *bestPeak = selectedPeaks[0];
+    float rotation;
     for (int i = 0; i < NUM_ROTATIONS; i++) {
-        cout << i << " (" << acos(rotations[i][1]) / M_PI * 180 << "): " << selectedPeaks[i][1] << " at " <<
+        float angleRads = atan(rotations[i][1]/rotations[i][0]);
+        float angleDegs = angleRads / M_PI * 180;
+
+        if (selectedPeaks[i][1] > bestPeak[1]) {
+            bestPeak = selectedPeaks[i];
+            rotation = angleDegs;
+        }
+        cout << i << " (" << angleDegs << "): " << selectedPeaks[i][1] << " at " <<
              selectedPeaks[i][0] << endl;
     }
+    cout << "Col: " << bestPeak[0] << ", metric: " << bestPeak[1] << ", rotation: " << rotation << "°" << endl;
 
     delete2DArray(columnPixelCounts, NUM_ROTATIONS);
     delete2DArray(acc, NUM_ROTATIONS);

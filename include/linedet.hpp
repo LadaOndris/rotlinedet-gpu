@@ -27,7 +27,7 @@
 
 #endif
 
-#define NUM_ROTATIONS 180
+#define NUM_ROTATIONS 317
 
 extern float rotations[NUM_ROTATIONS][2];
 
