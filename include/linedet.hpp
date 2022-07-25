@@ -57,4 +57,10 @@ void selectPeaksUsingSlopes(float **peaks,
                             float slopeThreshold,
                             float **selectedPeaks);
 
+void normalizeAccByNumPixels(unsigned int **acc, float **pixelCounts,
+                             float **normalizedAcc);
+
+void ignoreColumnsWithTooFewPixels(float **slopes, float **pixelCounts,
+                                   int pixelCountThreshold);
+
 #endif

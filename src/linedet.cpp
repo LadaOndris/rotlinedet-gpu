@@ -141,6 +141,27 @@ void sumColumns(const unsigned char img[IMG_HEIGHT][IMG_WIDTH],
     }
 }
 
+void normalizeAccByNumPixels(unsigned int **acc, float **pixelCounts,
+                             float **normalizedAcc) {
+    for (int rot = 0; rot < NUM_ROTATIONS; rot++) {
+        for (int col = 0; col < ACC_SIZE; col++) {
+            float pixel_count = pixelCounts[rot][col];
+            normalizedAcc[rot][col] = acc[rot][col] / pixel_count;
+        }
+    }
+}
+
+void ignoreColumnsWithTooFewPixels(float **slopes, float **pixelCounts,
+                                   int pixelCountThreshold) {
+    for (int rot = 0; rot < NUM_ROTATIONS; rot++) {
+        for (int col = 0; col < ACC_SIZE; col++) {
+            if (pixelCounts[rot][col] < pixelCountThreshold) {
+                slopes[rot][col] = std::numeric_limits<float>::max();
+            }
+        }
+    }
+}
+
 /**
  * The image is rotated by predefined angles.
  *
