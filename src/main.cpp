@@ -11,6 +11,7 @@
 #include "RunParams.hpp"
 #include "arrays.hpp"
 #include "coordinates.hpp"
+#include <sys/stat.h>
 
 using namespace std;
 using namespace std::chrono;
@@ -33,6 +34,8 @@ int parseArgs(int argc, char **argv, RunParams &params) {
             params.slopeThreshold = stof(args[i + 1]);
         } else if (args[i] == "--minPixelsThreshold") {
             params.minPixelsThreshold = stoi(args[i + 1]);
+        } else if (args[i] == "--pixelCountFile") {
+            params.pixelCountFilePath = args[i + 1];
         } else if (args[i] == "--verbose") {
             params.verbose = args[i + 1] == "true";
         } else {
@@ -67,7 +70,7 @@ void convertMatTo2DArray(const cv::Mat &mat,
 
 float **loadColumnPixelCountsFromFile(const string &filePath) {
     u_int16_t num_rotations, acc_width;
-    std::ifstream fin("src/scripts/columnPixelCounts.dat", std::ios::binary);
+    std::ifstream fin(filePath, std::ios::binary);
     fin.read(reinterpret_cast<char *>(&num_rotations), sizeof(u_int16_t));
     fin.read(reinterpret_cast<char *>(&acc_width), sizeof(u_int16_t));
 
@@ -111,6 +114,11 @@ void printImageEndpoints(image_endpoints_t endpoints) {
 }
 
 
+inline bool exists_file(const std::string& name) {
+    struct stat buffer;
+    return (stat (name.c_str(), &buffer) == 0);
+}
+
 int main(int argc, char **argv) {
     RunParams params;
     int code = parseArgs(argc, argv, params);
@@ -122,6 +130,10 @@ int main(int argc, char **argv) {
         cout << "No input file. Use option --image." << endl;
         return 2;
     }
+    else if (!exists_file(params.imagePath)) {
+        cout << "The input file doesn't exist: " << params.imagePath << endl;
+        return 2;
+    }
     if (params.averagingFilterSize <= 0) {
         cout << "Filter size is too small." << endl;
         return 2;
@@ -130,8 +142,12 @@ int main(int argc, char **argv) {
         cout << "Slope threshold cannot be zero or negative." << endl;
         return 2;
     }
+    if (!exists_file(params.pixelCountFilePath)) {
+        cout << "The pixel count file doesn't exist: " << params.pixelCountFilePath << endl;
+        return 2;
+    }
 
-    float **columnPixelCounts = loadColumnPixelCountsFromFile("src/scripts/columnPixelCounts.dat");
+    float **columnPixelCounts = loadColumnPixelCountsFromFile(params.pixelCountFilePath);
 
     cv::Mat img;
     readImage(params.imagePath, img);
