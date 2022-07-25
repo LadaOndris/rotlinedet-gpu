@@ -34,7 +34,7 @@ int parseArgs(int argc, char **argv, RunParams &params) {
         } else if (args[i] == "--minPixelsThreshold") {
             params.minPixelsThreshold = stoi(args[i + 1]);
         } else if (args[i] == "--verbose") {
-            params.verbose = true;
+            params.verbose = args[i + 1] == "true";
         } else {
             cout << "Unknown option: " << args[i] << endl;
             return 2;
@@ -182,7 +182,7 @@ int main(int argc, char **argv) {
 
         if (selectedPeaks[i][1] > bestPeak[1]) {
             bestPeak = selectedPeaks[i];
-            rotation = angleDegs;
+            rotation = angleRads;
         }
         if (params.verbose) {
             cout << i << " (" << angleDegs << "): " << selectedPeaks[i][1] << " at " <<
@@ -190,7 +190,7 @@ int main(int argc, char **argv) {
         }
     }
     if (params.verbose) {
-        cout << "Col: " << bestPeak[0] << ", metric: " << bestPeak[1] << ", rotation: " << rotation << "°" << endl;
+        cout << "Col: " << bestPeak[0] << ", metric: " << bestPeak[1] << ", rotation: " << rotation / M_PI * 180 << "°" << endl;
     }
 
     image_dimensions_t imageShape = { .width = IMG_WIDTH, .height = IMG_HEIGHT };

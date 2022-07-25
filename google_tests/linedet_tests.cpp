@@ -79,7 +79,7 @@ TEST(ExtractingSlopes, SmallWindowOnTheLeftSideOfArray) {
 
     // Values at the beginning and the end should
     // be set to a safe value
-    unsigned maxValue = std::numeric_limits<unsigned>::max();
+    float maxValue = std::numeric_limits<float>::max();
     unsigned expected_results[][2] = {{0, maxValue},
                                       {1, maxValue},
                                       {ACC_SIZE - 1, maxValue},

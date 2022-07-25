@@ -98,6 +98,7 @@ point_t transformFromAccSpaceToImageSpace(point_t point, float angle,
     float iWidth = imageShape.width / 2;
     float iHeight = imageShape.height / 2;
     float p = paddedImageShape.width / 2;
+
     float s = std::sin(angle);
     float c = std::cos(angle);
     point_t transformedPoint;
@@ -109,7 +110,7 @@ point_t transformFromAccSpaceToImageSpace(point_t point, float angle,
 slope_intercept_line_t lineFromAngleAndCol(float angle, int col,
                                            image_dimensions_t imageShape,
                                            image_dimensions_t paddedImageShape) {
-    auto maxY = static_cast<float>(imageShape.height - 1);
+    auto maxY = static_cast<float>(paddedImageShape.height - 1);
     point_t point1 = {.x = static_cast<float>(col), .y = 0};
     point_t point2 = {.x = static_cast<float>(col), .y =maxY};
     point_t transformedPoint1 = transformFromAccSpaceToImageSpace(point1, angle, imageShape, paddedImageShape);
