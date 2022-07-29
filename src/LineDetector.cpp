@@ -43,9 +43,7 @@ image_endpoints_t LineDetector::processImage(std::vector<unsigned char> &imageVe
     fill2DArray<float>(average, NUM_ROTATIONS, ACC_SIZE, 0);
 
     setImgData(imageVectorData);
-    //removeExtremeIntensities(gray, imgData);
-//    convertMatTo2DArray(cleaned, imgData);
-//
+
 //    auto stop = high_resolution_clock::now();
 //    auto duration = duration_cast<milliseconds>(stop - start);
 //    std::cout << "Duration: " << duration.count() << " ms" << std::endl;
@@ -87,16 +85,6 @@ image_endpoints_t LineDetector::processImage(std::vector<unsigned char> &imageVe
 
     return imageEndpoints;
 }
-
-//void LineDetector::convertMatTo2DArray(const cv::Mat &mat,
-//                                       unsigned char image[IMG_HEIGHT][IMG_WIDTH]) {
-//    unsigned char *dataMat = mat.data;
-//    for (int j = 0; j < IMG_HEIGHT; j++) {
-//        for (int i = 0; i < IMG_WIDTH; i++) {
-//            image[j][i] = dataMat[j * IMG_WIDTH + i];
-//        }
-//    }
-//}
 
 float **LineDetector::loadColumnPixelCountsFromFile(const std::string &filePath) {
     u_int16_t num_rotations, acc_width;

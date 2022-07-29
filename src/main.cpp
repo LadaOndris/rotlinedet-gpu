@@ -98,21 +98,21 @@ void rgbToGray(const std::vector<unsigned char> &rgb,
  *
  * @param imageData Single channel image pixel values
  */
-void loadImageData(std::vector<unsigned char> &imageData) {
+std::vector<unsigned char> loadImageData() {
     std::vector<unsigned char> input;
     input.reserve(RGB_NUM_ELEMS);
     readImageDataFromSTDIN(input);
     if (input.size() != RGB_NUM_ELEMS && input.size() != GRAY_NUM_ELEMS) {
         throw std::runtime_error("Unexpected number of elements from stdin: " + to_string(input.size()));
     }
-    imageData = input;
 
     if (input.size() == RGB_NUM_ELEMS) {
         std::vector<unsigned char> grayImageData;
         grayImageData.reserve(GRAY_NUM_ELEMS);
         rgbToGray(input, grayImageData);
-        imageData = grayImageData;
+        return grayImageData;
     }
+    return input;
 }
 
 
@@ -126,8 +126,7 @@ int main(int argc, char **argv) {
     auto lineDetector = LineDetector(params.pixelCountFilePath, params.averagingFilterSize,
                                      params.minPixelsThreshold, params.slopeThreshold,
                                      params.verbose);
-    std::vector<unsigned char> imageData;
-    loadImageData(imageData);
+    std::vector<unsigned char> imageData = loadImageData();
     auto imageEndpoints = lineDetector.processImage(imageData);
     printImageEndpoints(imageEndpoints);
 
