@@ -57,41 +57,29 @@ int parseArgs(int argc, char **argv, RunParams &params) {
     return checkParams(params);
 }
 
-//void displayImage(const cv::Mat &image) {
-//    cv::namedWindow("main", cv::WINDOW_NORMAL);
-//    cv::imshow("main", image);
-//
-//
-//    int ESCAPE_KEY = 27;
-//    int key;
-//    do {
-//        key = cv::waitKey(0);
-//    } while ((key & 0xEFFFFF) != ESCAPE_KEY);
-//}
-
 void printImageEndpoints(image_endpoints_t endpoints) {
     cout << endpoints.x1 << "," << endpoints.y1 << "," << endpoints.x2 << "," << endpoints.y2 << endl;
 }
 
 
-void readImageData(std::vector<unsigned char> &input) {
+void readImageDataFromSTDIN(std::vector<unsigned char> &input) {
 
     std::freopen(nullptr, "rb", stdin);
 
     if (std::ferror(stdin))
         throw std::runtime_error(std::strerror(errno));
 
-#define NUM_ELEMS (IMG_HEIGHT * IMG_WIDTH * 3)
     std::size_t len;
-    std::array<unsigned char, NUM_ELEMS> buf;
+    std::array<unsigned char, RGB_NUM_ELEMS> buf;
 
     while ((len = std::fread(buf.data(), sizeof(buf[0]), buf.size(), stdin)) > 0) {
         if (std::ferror(stdin) && !std::feof(stdin))
             throw std::runtime_error(std::strerror(errno));
 
-        input.insert(input.end(), buf.data(), buf.data() + len); // append to vector
+        input.insert(input.end(), buf.data(), buf.data() + len);
     }
 }
+
 
 void rgbToGray(const std::vector<unsigned char> &rgb,
                std::vector<unsigned char> &gray) {
@@ -103,6 +91,30 @@ void rgbToGray(const std::vector<unsigned char> &rgb,
     }
 }
 
+/**
+ * Reads image data from stdin.
+ * The image can be grayscale or RGB.
+ * If the image is RGB, it is converted to grayscale.
+ *
+ * @param imageData Single channel image pixel values
+ */
+void loadImageData(std::vector<unsigned char> &imageData) {
+    std::vector<unsigned char> input;
+    input.reserve(RGB_NUM_ELEMS);
+    readImageDataFromSTDIN(input);
+    if (input.size() != RGB_NUM_ELEMS && input.size() != GRAY_NUM_ELEMS) {
+        throw std::runtime_error("Unexpected number of elements from stdin: " + to_string(input.size()));
+    }
+    imageData = input;
+
+    if (input.size() == RGB_NUM_ELEMS) {
+        std::vector<unsigned char> grayImageData;
+        grayImageData.reserve(GRAY_NUM_ELEMS);
+        rgbToGray(input, grayImageData);
+        imageData = grayImageData;
+    }
+}
+
 
 int main(int argc, char **argv) {
     RunParams params;
@@ -111,22 +123,12 @@ int main(int argc, char **argv) {
         return code;
     }
 
-
     auto lineDetector = LineDetector(params.pixelCountFilePath, params.averagingFilterSize,
                                      params.minPixelsThreshold, params.slopeThreshold,
                                      params.verbose);
-    std::vector<unsigned char> input;
-    input.reserve(NUM_ELEMS);
-    readImageData(input);
-    if (input.size() != NUM_ELEMS) {
-        throw std::runtime_error("Unexpected number of elements from stdin: " + to_string(input.size()));
-    }
-
-    std::vector<unsigned char> grayImageData;
-    grayImageData.reserve(IMG_HEIGHT * IMG_WIDTH);
-    rgbToGray(input, grayImageData);
-
-    auto imageEndpoints = lineDetector.processImage(grayImageData);
+    std::vector<unsigned char> imageData;
+    loadImageData(imageData);
+    auto imageEndpoints = lineDetector.processImage(imageData);
     printImageEndpoints(imageEndpoints);
 
     return 0;
