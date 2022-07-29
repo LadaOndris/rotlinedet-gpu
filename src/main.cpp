@@ -4,6 +4,8 @@
 #include "coordinates.hpp"
 #include <sys/stat.h>
 #include <LineDetector.hpp>
+#include <vector>
+#include <array>
 
 using namespace std;
 using namespace std::chrono;
@@ -14,13 +16,6 @@ inline bool exists_file(const std::string &name) {
 }
 
 int checkParams(const RunParams &params) {
-    if (params.imagePath.empty()) {
-        cout << "No input file. Use option --image." << endl;
-        return 2;
-    } else if (!exists_file(params.imagePath)) {
-        cout << "The input file doesn't exist: " << params.imagePath << endl;
-        return 2;
-    }
     if (params.averagingFilterSize <= 0) {
         cout << "Filter size is too small." << endl;
         return 2;
@@ -44,9 +39,7 @@ int parseArgs(int argc, char **argv, RunParams &params) {
             cout << "Expected parameter value" << endl;
             return 1;
         }
-        if (args[i] == "--image") {
-            params.imagePath = args[i + 1];
-        } else if (args[i] == "--filterSize") {
+        if (args[i] == "--filterSize") {
             params.averagingFilterSize = stoi(args[i + 1]);
         } else if (args[i] == "--slopeThreshold") {
             params.slopeThreshold = stof(args[i + 1]);
@@ -64,21 +57,52 @@ int parseArgs(int argc, char **argv, RunParams &params) {
     return checkParams(params);
 }
 
-void displayImage(const cv::Mat &image) {
-    cv::namedWindow("main", cv::WINDOW_NORMAL);
-    cv::imshow("main", image);
-
-
-    int ESCAPE_KEY = 27;
-    int key;
-    do {
-        key = cv::waitKey(0);
-    } while ((key & 0xEFFFFF) != ESCAPE_KEY);
-}
+//void displayImage(const cv::Mat &image) {
+//    cv::namedWindow("main", cv::WINDOW_NORMAL);
+//    cv::imshow("main", image);
+//
+//
+//    int ESCAPE_KEY = 27;
+//    int key;
+//    do {
+//        key = cv::waitKey(0);
+//    } while ((key & 0xEFFFFF) != ESCAPE_KEY);
+//}
 
 void printImageEndpoints(image_endpoints_t endpoints) {
     cout << endpoints.x1 << "," << endpoints.y1 << "," << endpoints.x2 << "," << endpoints.y2 << endl;
 }
+
+
+void readImageData(std::vector<unsigned char> &input) {
+
+    std::freopen(nullptr, "rb", stdin);
+
+    if (std::ferror(stdin))
+        throw std::runtime_error(std::strerror(errno));
+
+#define NUM_ELEMS (IMG_HEIGHT * IMG_WIDTH * 3)
+    std::size_t len;
+    std::array<unsigned char, NUM_ELEMS> buf;
+
+    while ((len = std::fread(buf.data(), sizeof(buf[0]), buf.size(), stdin)) > 0) {
+        if (std::ferror(stdin) && !std::feof(stdin))
+            throw std::runtime_error(std::strerror(errno));
+
+        input.insert(input.end(), buf.data(), buf.data() + len); // append to vector
+    }
+}
+
+void rgbToGray(const std::vector<unsigned char> &rgb,
+               std::vector<unsigned char> &gray) {
+    for (int i = 0; i + 2 < rgb.size(); i += 3) {
+        auto value = 0.2125 * rgb[i] +
+                     0.7154 * rgb[i + 1] +
+                     0.0721 * rgb[i + 2];
+        gray.push_back(value);
+    }
+}
+
 
 int main(int argc, char **argv) {
     RunParams params;
@@ -87,10 +111,22 @@ int main(int argc, char **argv) {
         return code;
     }
 
+
     auto lineDetector = LineDetector(params.pixelCountFilePath, params.averagingFilterSize,
                                      params.minPixelsThreshold, params.slopeThreshold,
                                      params.verbose);
-    auto imageEndpoints = lineDetector.processImage(params.imagePath);
+    std::vector<unsigned char> input;
+    input.reserve(NUM_ELEMS);
+    readImageData(input);
+    if (input.size() != NUM_ELEMS) {
+        throw std::runtime_error("Unexpected number of elements from stdin: " + to_string(input.size()));
+    }
+
+    std::vector<unsigned char> grayImageData;
+    grayImageData.reserve(IMG_HEIGHT * IMG_WIDTH);
+    rgbToGray(input, grayImageData);
+
+    auto imageEndpoints = lineDetector.processImage(grayImageData);
     printImageEndpoints(imageEndpoints);
 
     return 0;

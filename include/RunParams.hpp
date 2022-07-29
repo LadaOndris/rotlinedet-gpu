@@ -6,7 +6,6 @@
 
 class RunParams {
 public:
-    std::string imagePath;
     std::string pixelCountFilePath = "src/scripts/columnPixelCounts.dat";
     int averagingFilterSize;
     float slopeThreshold;

@@ -3,6 +3,11 @@
 //
 
 #include "LineDetector.hpp"
+#include <chrono>
+#include <cmath>
+#include <vector>
+
+using namespace std::chrono;
 
 LineDetector::LineDetector(std::string &pixelCountFilePath, int averagingFilterSize,
                            int minPixelsThreshold, float slopeThreshold, bool verbosely) :
@@ -31,22 +36,42 @@ LineDetector::~LineDetector() {
     delete2DArray(selectedPeaks, NUM_ROTATIONS);
 }
 
-image_endpoints_t LineDetector::processImage(std::string &imagePath) {
+image_endpoints_t LineDetector::processImage(std::vector<unsigned char> &imageVectorData) {
+//    auto start = high_resolution_clock::now();
+
     fill2DArray<unsigned>(acc, NUM_ROTATIONS, ACC_SIZE, 0);
     fill2DArray<float>(average, NUM_ROTATIONS, ACC_SIZE, 0);
 
-    readImage(imagePath, img);
-    convertBgrToGray(img, gray);
-    removeExtremeIntensities(gray, cleaned);
+    setImgData(imageVectorData);
+    //removeExtremeIntensities(gray, imgData);
+//    convertMatTo2DArray(cleaned, imgData);
+//
+//    auto stop = high_resolution_clock::now();
+//    auto duration = duration_cast<milliseconds>(stop - start);
+//    std::cout << "Duration: " << duration.count() << " ms" << std::endl;
+//
+//    start = high_resolution_clock::now();
 
-    convertMatTo2DArray(cleaned, imgData);
     sumColumns(imgData, rotations, acc);
+//
+//    stop = high_resolution_clock::now();
+//    duration = duration_cast<milliseconds>(stop - start);
+//    std::cout << "Duration: " << duration.count() << " ms" << std::endl;
+//
+
+//    start = high_resolution_clock::now();
     normalizeAccByNumPixels(acc, columnPixelCounts, normalizedAcc);
     convolveAverage(normalizedAcc, averagingFilterSize, average);
     extractPeaks(normalizedAcc, average, peaks);
     extractSlopes(average, sideDistance, slopes);
     ignoreColumnsWithTooFewPixels(slopes, columnPixelCounts, minPixelsThreshold);
     selectPeaksUsingSlopes(peaks, slopes, slopeThreshold, selectedPeaks);
+
+//    stop = high_resolution_clock::now();
+//    duration = duration_cast<milliseconds>(stop - start);
+//    std::cout << "Duration: " << duration.count() << " ms" << std::endl;
+
+//    start = high_resolution_clock::now();
 
     float rotation, column;
     getMaxPeak(rotation, column);
@@ -56,18 +81,22 @@ image_endpoints_t LineDetector::processImage(std::string &imagePath) {
     slope_intercept_line_t line = lineFromAngleAndCol(rotation, column, imageShape, paddedImageShape);
     image_endpoints_t imageEndpoints = lineEndPointsOnImage(line, imageShape);
 
+//    stop = high_resolution_clock::now();
+//    duration = duration_cast<milliseconds>(stop - start);
+//    std::cout << "Duration: " << duration.count() << " ms" << std::endl;
+
     return imageEndpoints;
 }
 
-void LineDetector::convertMatTo2DArray(const cv::Mat &mat,
-                                       unsigned char image[IMG_HEIGHT][IMG_WIDTH]) {
-    unsigned char *dataMat = mat.data;
-    for (int j = 0; j < IMG_HEIGHT; j++) {
-        for (int i = 0; i < IMG_WIDTH; i++) {
-            image[j][i] = dataMat[j * IMG_WIDTH + i];
-        }
-    }
-}
+//void LineDetector::convertMatTo2DArray(const cv::Mat &mat,
+//                                       unsigned char image[IMG_HEIGHT][IMG_WIDTH]) {
+//    unsigned char *dataMat = mat.data;
+//    for (int j = 0; j < IMG_HEIGHT; j++) {
+//        for (int i = 0; i < IMG_WIDTH; i++) {
+//            image[j][i] = dataMat[j * IMG_WIDTH + i];
+//        }
+//    }
+//}
 
 float **LineDetector::loadColumnPixelCountsFromFile(const std::string &filePath) {
     u_int16_t num_rotations, acc_width;
@@ -110,5 +139,13 @@ void LineDetector::getMaxPeak(float &rotation, float &column) {
                   << std::endl;
     }
     column = bestPeak[0];
+}
+
+void LineDetector::setImgData(std::vector<unsigned char> &vector) {
+    for (int row = 0; row < IMG_HEIGHT; row++) {
+        for (int col = 0; col < IMG_WIDTH; col++) {
+            imgData[row][col] = vector.at(row * IMG_WIDTH + col);
+        }
+    }
 }
 

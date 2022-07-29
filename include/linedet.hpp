@@ -3,9 +3,6 @@
 #define LINEDET_HPP
 
 #include <string>
-#include <opencv2/core.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgproc.hpp>
 
 #ifdef HD
 
@@ -31,11 +28,8 @@
 
 extern float rotations[NUM_ROTATIONS][2];
 
-void readImage(const std::string &imagePath, cv::Mat &image);
-
-void convertBgrToGray(const cv::Mat &inImage, cv::Mat &outImage);
-
-void removeExtremeIntensities(const cv::Mat &inImage, cv::Mat &outImage);
+void removeExtremeIntensities(unsigned char inImage[IMG_HEIGHT][IMG_WIDTH],
+                              unsigned char outImage[IMG_HEIGHT][IMG_WIDTH]);
 
 void sumColumns(const unsigned char img[IMG_HEIGHT][IMG_WIDTH],
                 const float rotations[NUM_ROTATIONS][2],

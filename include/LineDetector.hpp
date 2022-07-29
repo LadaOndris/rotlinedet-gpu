@@ -20,6 +20,7 @@
 #include "coordinates.hpp"
 #include <sys/stat.h>
 #include <string>
+#include <vector>
 #include "coordinates.hpp"
 
 class LineDetector {
@@ -28,7 +29,7 @@ public:
                  int minPixelsThreshold, float slopeThreshold, bool verbosely);
     ~LineDetector();
 
-    image_endpoints_t processImage(std::string &imagePath);
+    image_endpoints_t processImage(std::vector<unsigned char> &imageVectorData);
 private:
     int averagingFilterSize;
     int minPixelsThreshold;
@@ -36,9 +37,9 @@ private:
     bool verbosely;
 
     int sideDistance;
-    cv::Mat img;
-    cv::Mat gray;
-    cv::Mat cleaned;
+//    cv::Mat img;
+//    cv::Mat gray;
+//    cv::Mat cleaned;
     unsigned char imgData[IMG_HEIGHT][IMG_WIDTH];
     unsigned **acc;
     float **normalizedAcc;
@@ -48,10 +49,12 @@ private:
     float **selectedPeaks;
     float **columnPixelCounts;
 
-    static void convertMatTo2DArray(const cv::Mat &mat,
-                             unsigned char image[IMG_HEIGHT][IMG_WIDTH]);
+//    static void convertMatTo2DArray(const cv::Mat &mat,
+//                             unsigned char image[IMG_HEIGHT][IMG_WIDTH]);
     static float **loadColumnPixelCountsFromFile(const std::string &filePath);
     void getMaxPeak(float &rotation, float &column);
+
+    void setImgData(std::vector<unsigned char> &vector);
 };
 
 

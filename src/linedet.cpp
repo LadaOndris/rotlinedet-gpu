@@ -2,17 +2,10 @@
 #include "../include/linedet.hpp"
 #include <iostream>
 #include <openacc.h>
+#include <limits>
 
-void readImage(const std::string &imagePath, cv::Mat &image) {
-    cv::Mat img = cv::imread(imagePath);
-    image = img;
-}
-
-void convertBgrToGray(const cv::Mat &inImage, cv::Mat &outImage) {
-    cv::cvtColor(inImage, outImage, cv::COLOR_BGR2GRAY);
-}
-
-void removeExtremeIntensities(const cv::Mat &inImage, cv::Mat &outImage) {
+void removeExtremeIntensities(unsigned char inImage[IMG_HEIGHT][IMG_WIDTH],
+                              unsigned char outImage[IMG_HEIGHT][IMG_WIDTH]) {
     outImage = inImage;
 //
 //    cv::Mat reshaped = inImage.reshape(1, 1);
