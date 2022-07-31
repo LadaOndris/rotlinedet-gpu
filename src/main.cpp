@@ -49,6 +49,8 @@ int parseArgs(int argc, char **argv, RunParams &params) {
             params.pixelCountFilePath = args[i + 1];
         } else if (args[i] == "--verbose") {
             params.verbose = args[i + 1] == "true";
+        } else if (args[i] == "--candidates") {
+            params.candidates = stoi(args[i + 1]);
         } else {
             cout << "Unknown option: " << args[i] << endl;
             return 2;
@@ -57,8 +59,10 @@ int parseArgs(int argc, char **argv, RunParams &params) {
     return checkParams(params);
 }
 
-void printImageEndpoints(image_endpoints_t endpoints) {
-    cout << endpoints.x1 << "," << endpoints.y1 << "," << endpoints.x2 << "," << endpoints.y2 << endl;
+void printImageEndpoints(const std::vector<image_endpoints_t> &endpointsArray) {
+    for (auto endpoints : endpointsArray) {
+        cout << endpoints.x1 << "," << endpoints.y1 << "," << endpoints.x2 << "," << endpoints.y2 << endl;
+    }
 }
 
 
@@ -125,7 +129,7 @@ int main(int argc, char **argv) {
 
     auto lineDetector = LineDetector(params.pixelCountFilePath, params.averagingFilterSize,
                                      params.minPixelsThreshold, params.slopeThreshold,
-                                     params.verbose);
+                                     params.candidates, params.verbose);
     std::vector<unsigned char> imageData = loadImageData();
     auto imageEndpoints = lineDetector.processImage(imageData);
     printImageEndpoints(imageEndpoints);

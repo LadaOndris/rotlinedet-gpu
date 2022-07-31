@@ -2,7 +2,10 @@
 #ifndef LINEDET_HPP
 #define LINEDET_HPP
 
+#include <cmath>
 #include <string>
+#include <vector>
+#include <cmath>
 
 #ifdef HD
 
@@ -30,6 +33,22 @@
 
 extern float rotations[NUM_ROTATIONS][2];
 
+struct Peak {
+    unsigned rotation; // rotation index into rotations array
+    unsigned column;
+    float value;
+
+    Peak(unsigned rotation, unsigned column, float peakValue)
+    : rotation(rotation), column(column), value(peakValue) {}
+
+    /**
+     * @return Returns angle of rotation in radians.
+     */
+    double getRotationAngle() const {
+        return std::atan(rotations[rotation][1] / rotations[rotation][0]);
+    }
+};
+
 void removeExtremeIntensities(unsigned char inImage[IMG_HEIGHT][IMG_WIDTH],
                               unsigned char outImage[IMG_HEIGHT][IMG_WIDTH]);
 
@@ -48,10 +67,8 @@ void extractSlopes(float **array,
                    int sideDistance,
                    float **slopes);
 
-void selectPeaksUsingSlopes(float **peaks,
-                            float **slopes,
-                            float slopeThreshold,
-                            float **selectedPeaks);
+std::vector<Peak> selectPeaksUsingSlopes(
+        float **peaks, float **slopes, float slopeThreshold);
 
 void normalizeAccByNumPixels(unsigned int **acc, float **pixelCounts,
                              float **normalizedAcc);
