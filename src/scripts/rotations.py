@@ -75,7 +75,7 @@ def print_nonzero_pixels(width, height) -> None:
 
     sins, coss = generate(NUM_ROTATIONS, ANGLE_RADS_FROM, ANGLE_RADS_TO)
 
-    with open("src/scripts/columnPixelCounts.dat", 'wb') as file:
+    with open(f"src/scripts/columnPixelCounts{NUM_ROTATIONS}.dat", 'wb') as file:
         # Write height and width of the image (determining the number of values)
         num_rotations_bytes = np.array([NUM_ROTATIONS]).astype(np.uint16).tobytes()
         acc_size_bytes = np.array([acc_size]).astype(np.uint16).tobytes()
@@ -124,7 +124,7 @@ def generate_image_with_ones_only(width: int, height: int, save_path: str):
     cv2.imwrite(save_path, img)
 
 
-NUM_ROTATIONS = 317
+NUM_ROTATIONS = 475  # 317
 ANGLE_RADS_FROM = -79 / 180 * np.pi
 ANGLE_RADS_TO = 79 / 180 * np.pi
 WIDTH = 1920
