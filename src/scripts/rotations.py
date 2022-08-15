@@ -124,9 +124,10 @@ def generate_image_with_ones_only(width: int, height: int, save_path: str):
     cv2.imwrite(save_path, img)
 
 
-NUM_ROTATIONS = 475  # 317
-ANGLE_RADS_FROM = -79 / 180 * np.pi
-ANGLE_RADS_TO = 79 / 180 * np.pi
+ANGLE_RADS_FROM = -70 / 180 * np.pi
+ANGLE_RADS_TO = 70 / 180 * np.pi
+ANGLE_STEP = 0.5 / 180 * np.pi
+NUM_ROTATIONS = int((ANGLE_RADS_TO - ANGLE_RADS_FROM) / ANGLE_STEP + 1)
 WIDTH = 1920
 HEIGHT = 1080
 HALF_IMG_WIDTH = int(WIDTH // 2)

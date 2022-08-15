@@ -29,7 +29,7 @@
 
 #define RGB_NUM_ELEMS (IMG_HEIGHT * IMG_WIDTH * 3)
 #define GRAY_NUM_ELEMS (IMG_HEIGHT * IMG_WIDTH)
-#define NUM_ROTATIONS 317
+#define NUM_ROTATIONS 281
 
 extern float rotations[NUM_ROTATIONS][2];
 
