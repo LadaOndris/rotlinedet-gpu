@@ -44,13 +44,60 @@ The following steps must be made to change the number of rotations:
 * Copy generated array from stdout to `linedet.cpp` 
 * Change the NUM_ROTATIONS in `linedet.hpp` and compile the source code
 
+## Algorithm speed
+
+Speed was evaluated on Full HD and 4K image. 
+Only the most computationally intensive part of the algorithm—the `sumColumns` function—was evaluated.
+The other parts of the algorithm are too insignificant to consider for optimization. 
+
+Evaluation used 180 rotations. Note that the current implementation uses 281 rotations. The speed 
+scales linearly with the increasing number of rotations.
+
+**1920x1080 - Full HD**  
+g++ 		1950 ms  
+g++ -O3 	600 ms  
+GPU 		440 ms  
+
+**3840x2160 - 4K**  
+g++ 		7900 ms  
+g++ -O3 	2390 ms  
+GPU 		895 ms  
+
+## Algorithm accuracy
+
+The algorithm can be evaluated using the `evaluate.py` script in **apaler** repository.
+The evaluation produced 143/250 successful detections (57.2%). The script produces statistics 
+per intensity, per laser width, per laser length, and per image.
+
+An important finding emerged from per image statistics:
+```
+image
+0   1  2  3 4
+10 40 17 37 3
+```
+The first row shows image index and below that index on the second line is the number of failed
+detections out of 50. Detection accuracies for these images are then 80%, 20%, 66%, 26% and 94%.
+
+The finding is that for some background the algorithm works better than for other background. 
+After careful exploration of the images, it is clear that the detection accuracy depends on the complexity
+of the image background (or rather foreground). If there are trees whose peaks cover part of the 
+lighter background, then the intensities of the columns are jagged.
+Possible solution: image could be divided into quadrants in which the line would be detected separately.
+
 ### Notes
 
-* Increasing number of rotations from 317 to 475 did not
-improve accuracy. 
 * 317 rotations result in a step of a half a degree.
+* Increasing number of rotations from 317 to 475 did not
+  improve accuracy.
 
 ## Tests
 
 Tests are written using the **GoogleTest** library. The library should be downloaded 
 into `google_tests/lib` directory.
+
+## To do
+
+* Modify the algorithm to accept a continuous stream of images instead of a single image
+  (no memory allocations will be required for the processing of each image)
+* Strong single point light sources may cause drastic changes in intensity. Thus, consider incorporating
+replacement of extreme values (too far away from median) with the median.
