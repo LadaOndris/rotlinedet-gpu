@@ -13,6 +13,9 @@ Use **nvc++** to compile for GPU, increasing the algorithm's speed twice for Ful
 Run `rotlinedet_run` executable after compilation. The image is read from the standard input
 so that images can be pipelined to this program real-time without saving them to a disk.
 
+The output is printed to standard output. Each line in the image (a laser candidate) is represented 
+by two points on the image in the following format `{x1},{y1},{x2},{y2}\n`.
+
 The program supports the following arguments:
 * --filterSize 
     The width of the running average window. A typical width is around 30. The best value depends
