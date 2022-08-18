@@ -1,4 +1,8 @@
-    
+# rotlinedet-gpu
+
+The repository contains an implementation of the rotlinedet algorithm in C++
+optimized for GPU. The algorithm finds lines in the given image by rotating it by 
+many angles and finding drastic changes in intensity of its columns.
 
 ## Compilation
 
