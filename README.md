@@ -6,7 +6,7 @@ Use cmake to compile. Makefile was used in the first stages of development to co
 
 Use **g++** to compile for CPU.
 
-Use **nvc++** to compile for GPU for significant speed up.
+Use **nvc++** to compile for GPU for significant speed up. Install NVIDIA HPC SDK.
 
 ## Execution
 
@@ -28,11 +28,26 @@ The program supports the following arguments:
     say that there is a spike in that column. Columns with lower number of pixels than this threshold
     are ignored. A typical value is 200 or 300.
 * --pixelCountFile
-    File path to a file with saved pixel counts in columns of a rotated image. Generation of this file is discussed further.
+    File path to a file with saved pixel counts in columns of a rotated image. 
+    Generation of this file is discussed further.
 * --candidates
     Number of candidate lines the program should produce.
 
 Optimal parameters can be determined using `bestparams.py` script in **apaler** repository.
+
+### One-time Execution
+The image is read from the standard input:
+```
+python3 loadimg.py ./data/olympus/_6210070_fullhd.JPG | ./src/rotlinedet_run --filterSize 30 --slopeThreshold 0.2 --minPixelsThreshold 300 --candidates 5
+```
+The candidates are written to the standard output:
+```
+0,804,1107,0
+22,0,1101,1079
+1919,580,1497,0
+1884,0,805,1079
+0,831,507,1079
+```
 
 ## Number of rotations
 
@@ -42,8 +57,8 @@ Increasing the number of rotations linearly increases the processing time. It is
 to keep this parameter as small as possible while achieving sufficient accuracy.
 
 The following steps must be made to change the number of rotations:
-* Change parameters (ANGLE_RADS_FROM, ANGLE_RADS_TO, ANGLE_STEP) in `rotations.py`
-* Regenerate the `columnPixelCounts.dat`file by running the `rotations.py` script
+* Change parameters (ANGLE_RADS_FROM, ANGLE_RADS_TO, ANGLE_STEP) in `src/scripts/rotations.py`
+* Regenerate the `src/scripts/columnPixelCounts.dat`file by running the `src/scripts/rotations.py` script
 * Copy generated array from stdout to `linedet.cpp` 
 * Change the NUM_ROTATIONS in `linedet.hpp` and compile the source code
 
