@@ -1,12 +1,12 @@
 # rotlinedet-gpu
 
 The repository contains an implementation of the rotlinedet algorithm in C++
-optimized for GPU. The algorithm finds lines in the given image by rotating it by 
+optimized for GPU using OpenACC. The algorithm finds lines in the given image by rotating it by 
 many angles and finding drastic changes in intensity of its columns.
 
 ## Compilation
 
-Use cmake to compile. Makefile was used in the first stages of development to compile a single source file.
+Use cmake to compile. 
 
 Use **g++** to compile for CPU.
 
